@@ -79,12 +79,14 @@ namespace Microsoft.Azure.Devices.Client.Samples
             await _deviceClient.SetMethodHandlerAsync("thermostat2*getMaxMinReport", HandleMaxMinReportCommand, Thermostat2, cancellationToken);
 
             //_logger.LogDebug("Set handler to receive 'targetTemperature' updates.");
-            await _deviceClient.SetDesiredPropertyUpdateCallbackAsync(SetDesiredPropertyUpdateCallback, null, cancellationToken);
-            _desiredPropertyUpdateCallbacks.Add(Thermostat1, TargetTemperatureUpdateCallbackAsync);
-            _desiredPropertyUpdateCallbacks.Add(Thermostat2, TargetTemperatureUpdateCallbackAsync);
 
-            await UpdateDeviceInformationAsync(cancellationToken);
-            await SendDeviceSerialNumberAsync(cancellationToken);
+            //bruce test
+            //await _deviceClient.SetDesiredPropertyUpdateCallbackAsync(SetDesiredPropertyUpdateCallback, null, cancellationToken);
+            //_desiredPropertyUpdateCallbacks.Add(Thermostat1, TargetTemperatureUpdateCallbackAsync);
+            //_desiredPropertyUpdateCallbacks.Add(Thermostat2, TargetTemperatureUpdateCallbackAsync);
+
+            //await UpdateDeviceInformationAsync(cancellationToken);
+            //await SendDeviceSerialNumberAsync(cancellationToken);
 
             bool temperatureReset = true;
             _maxTemp[Thermostat1] = 0d;
@@ -98,9 +100,9 @@ namespace Microsoft.Azure.Devices.Client.Samples
                     //_temperature[Thermostat1] = Math.Round(s_random.NextDouble() * 40.0 + 5.0, 1);
                     //_temperature[Thermostat2] = Math.Round(s_random.NextDouble() * 40.0 + 5.0, 1);
                 }
-
-                await SendTemperatureAsync(Thermostat1, cancellationToken);
-                await SendTemperatureAsync(Thermostat2, cancellationToken);
+                //bruce test
+                //await SendTemperatureAsync(Thermostat1, cancellationToken);
+                //await SendTemperatureAsync(Thermostat2, cancellationToken);
                 await SendDeviceMemoryAsync(cancellationToken);
 
                 //temperatureReset = _temperature[Thermostat1] == 0 && _temperature[Thermostat2] == 0;
@@ -309,16 +311,57 @@ namespace Microsoft.Azure.Devices.Client.Samples
                     int myCount = 1;
                     foreach (var stationData in data)
                     {
-                        string dataBuffer = JsonConvert.SerializeObject(stationData);
-                        var eventMessage = new Message(Encoding.UTF8.GetBytes(dataBuffer));
+                //bruce test
+                var testData = new
+                {
+                    deviceId = stationData.deviceId,
+                    maxAirTemp = stationData.measurements.maxAirTemp,
+                    minAirTemp = stationData.measurements.minAirTemp,
+                    currentAirTemp = stationData.measurements.currentAirTemp,
+                    airTempQuality = stationData.measurements.airTempQuality,
+                    airTempAlternate = stationData.measurements.airTempAlternate,
+                    airTempAlternateQuality = stationData.measurements.airTempAlternateQuality,
+                    relativeHumidity = stationData.measurements.relativeHumidity,
+                    dewPoint = stationData.measurements.dewPoint,
+
+                    atmospherePressure = stationData.measurements.atmospherePressure,
+                    pavementTemp = stationData.measurements.pavementTemp,
+                    pavementTempQuality = stationData.measurements.pavementTempQuality,
+                    alternatePavementTemp = stationData.measurements.alternatePavementTemp,
+                    freezePointTemp = stationData.measurements.freezePointTemp,
+                    freezePointTempQuality = stationData.measurements.freezePointTempQuality,
+                    pavementCondition = stationData.measurements.pavementCondition,
+                    pavementConditionQuality = stationData.measurements.pavementConditionQuality,
+                    subAsphaltTemp = stationData.measurements.subAsphaltTemp,
+                    pavementBaseTemp = stationData.measurements.pavementBaseTemp,
+                    pavementBaseTempQuality = stationData.measurements.pavementBaseTempQuality,
+                    pavementSurfaceConductivity = stationData.measurements.pavementSurfaceConductivity,
+                    pavementSurfaceConductivityQuality = stationData.measurements.pavementSurfaceConductivityQuality,
+
+                    maxWindSpeed = stationData.measurements.maxWindSpeed,
+                    meanWindSpeed = stationData.measurements.meanWindSpeed,
+                    windSpeed = stationData.measurements.windSpeed,
+                    windSpeedQuality = stationData.measurements.windSpeedQuality,
+                    meanWindDirection = stationData.measurements.meanWindDirection,
+                    standardWindDeviation = stationData.measurements.standardWindDeviation,
+                    windDirection = stationData.measurements.windDirection
+
+                };
+
+                string dataBuffer = JsonConvert.SerializeObject(testData);
+
+                //bruce test
+                //string dataBuffer = JsonConvert.SerializeObject(stationData);
+                var eventMessage = new Message(Encoding.UTF8.GetBytes(dataBuffer));
                         Console.WriteLine($"\t{DateTime.Now.ToLocalTime()}> Sending message to central: {myCount}, Body: [{dataBuffer}]");
                         string messageString = "";
 
 
+                //bruce test
+                //messageString = JsonConvert.SerializeObject(stationData);
+                messageString = JsonConvert.SerializeObject(testData);
 
-                        messageString = JsonConvert.SerializeObject(stationData);
-
-                        var message = new Message(Encoding.ASCII.GetBytes(messageString));
+                var message = new Message(Encoding.ASCII.GetBytes(messageString));
 
 
                         // Send the telemetry message  
